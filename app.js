@@ -1,31 +1,31 @@
-// app.js
+// Grab DOM elements
+const voltText = document.querySelector('#voltageDisplay');
+const currText = document.querySelector('#currentDisplay');
 
-// 1. Locate the dynamic text components within the A-Frame scene
-const voltText = document.getElementById('voltValue');
-const currText = document.getElementById('currValue');
+// Simulation parameters
+let voltage = 3.32;
+const circuitResistance = 313.2; // Ohms (V / I = 3.32V / 10.6mA)
 
-// --- Simulation Logic ---
-
-let voltage = 3.3; // Starting voltage (V)
-const resistance = 314; // The physical resistance (example placeholder: 314 Ohms)
-
-// 2. A simple loop that updates values every 500ms
+// Update loop (runs every 400ms)
 setInterval(() => {
-    // a. Simulate fluctuations in voltage (between -0.05V and +0.05V)
-    const drift = (Math.random() - 0.5) * 0.1;
-    voltage = Math.max(1.0, Math.min(5.0, voltage + drift)); // Clamp between 1V and 5V
+  // Add slight natural noise/fluctuation
+  const jitter = (Math.random() - 0.5) * 0.08;
+  voltage = Math.max(0.1, voltage + jitter);
+  
+  // Calculate Current via Ohm's Law: I = (V / R) * 1000 (mA)
+  const currentMA = (voltage / circuitResistance) * 1000;
 
-    // b. Perform a dynamic Ohm's Law calculation: I = V / R (mA)
-    // Mult by 1000 to convert Amps to milliamps
-    const currentMA = (voltage / resistance) * 1000;
+  // Render to AR elements
+  voltText.setAttribute('value', `${voltage.toFixed(2)} V`);
+  currText.setAttribute('value', `${currentMA.toFixed(1)} mA`);
+}, 400);
 
-    // c. Format the numbers for clean display
-    // dtostrf equivalent: toFixed(2)
-    const formattedVolt = voltage.toFixed(2);
-    const formattedCurr = currentMA.toFixed(1);
-
-    // 3. Set the new values into the A-Frame text entities
-    voltText.setAttribute('value', `${formattedVolt} V`);
-    currText.setAttribute('value', `${formattedCurr} mA`);
-
-}, 500); // Update frequency in milliseconds
+/*
+// --- If connecting directly to ESP32 WebSocket: ---
+const socket = new WebSocket('ws://192.168.4.1:81'); // Or cloud WSS broker
+socket.onmessage = (event) => {
+  const data = JSON.parse(event.data); // Expecting { v: 3.32, i: 10.6 }
+  voltText.setAttribute('value', `${parseFloat(data.v).toFixed(2)} V`);
+  currText.setAttribute('value', `${parseFloat(data.i).toFixed(1)} mA`);
+};
+*/
