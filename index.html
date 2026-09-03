@@ -1,43 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR Circuit Overlay</title>
-  
-  <!-- A-Frame -->
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <!-- MindAR -->
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-  <!-- Look-At (keeps overlay facing camera) -->
-  <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
-
-  <style>
-    body { margin: 0; overflow: hidden; }
-  </style>
-</head>
-<body>
-
-  <a-scene 
-    mindar-image="imageTargetSrc: ./targets.mind;" 
-    color-space="sRGB" 
-    renderer="colorManagement: true, physicallyCorrectLights" 
-    vr-mode-ui="enabled: false" 
-    device-orientation-permission-ui="enabled: false">
-
-    <!-- Preload Assets -->
-    <a-assets>
-      <img id="boardOverlay" src="./image_0.png">
-    </a-assets>
-
-    <!-- Camera -->
-    <a-camera id="mainCamera" position="0 0 0" look-controls="enabled: false"></a-camera>
-
-    <!-- Target Anchor (triggers when the camera sees your marker) -->
+<!-- Target Anchor -->
     <a-entity mindar-image-target="targetIndex: 0">
       
-      <!-- Container: Positioned slightly above the marker, billboarding to camera -->
-      <a-entity position="0 0 0.1" look-at="#mainCamera">
+      <!-- Main Container: Positioned slightly above the marker, facing camera -->
+      <a-entity position="0 0 0.05" look-at="#mainCamera">
 
         <!-- 1. Transparent Board Image Overlay -->
         <a-plane 
@@ -47,60 +12,83 @@
           material="opacity: 0.55; transparent: true; alphaTest: 0.01;">
         </a-plane>
 
-        <!-- 2. Dark Tint Card Behind Text (for readability over busy backgrounds) -->
-        <a-plane 
-          position="0 0.02 0.01" 
-          width="0.75" 
-          height="0.65" 
-          color="#0F172A" 
-          material="opacity: 0.7; transparent: true">
-        </a-plane>
+        <!-- 2. Compact HUD Card (Placed directly to the right of the resistor) -->
+        <!-- Resistor center is ~ (0.16, 0.06); Placing readout card at (0.34, 0.06) -->
+        <a-entity position="0.34 0.06 0.01">
 
-        <!-- 3. VOLTAGE SECTION -->
-        <a-entity position="0 0.18 0.02">
+          <!-- Semi-transparent dark background card for readability -->
+          <a-plane 
+            width="0.26" 
+            height="0.22" 
+            color="#0F172A" 
+            material="opacity: 0.8; transparent: true">
+          </a-plane>
+
+          <!-- Component Label -->
           <a-text 
-            value="VOLTAGE" 
+            value="R1 SENSOR" 
             align="center" 
+            position="0 0.075 0.01" 
+            scale="0.18 0.18 0.18" 
             color="#94A3B8" 
-            scale="0.35 0.35 0.35" 
+            font="roboto">
+          </a-text>
+
+          <!-- Divider line between label and metrics -->
+          <a-plane 
+            position="0 0.055 0.01" 
+            width="0.22" 
+            height="0.003" 
+            color="#334155">
+          </a-plane>
+
+          <!-- VOLTAGE READING (Compact) -->
+          <a-text 
+            value="V:" 
+            position="-0.10 0.015 0.01" 
+            scale="0.22 0.22 0.22" 
+            color="#94A3B8" 
             font="roboto">
           </a-text>
           <a-text 
             id="voltageDisplay" 
             value="3.32 V" 
-            align="center" 
-            position="0 -0.09 0" 
+            align="right" 
+            position="0.10 0.015 0.01" 
+            scale="0.25 0.25 0.25" 
             color="#38BDF8" 
-            scale="0.9 0.9 0.9" 
             font="roboto">
           </a-text>
-        </a-entity>
 
-        <!-- 4. CURRENT SECTION -->
-        <a-entity position="0 -0.12 0.02">
+          <!-- CURRENT READING (Compact) -->
           <a-text 
-            value="CURRENT" 
-            align="center" 
+            value="I:" 
+            position="-0.10 -0.045 0.01" 
+            scale="0.22 0.22 0.22" 
             color="#94A3B8" 
-            scale="0.35 0.35 0.35" 
             font="roboto">
           </a-text>
           <a-text 
             id="currentDisplay" 
             value="10.6 mA" 
-            align="center" 
-            position="0 -0.09 0" 
+            align="right" 
+            position="0.10 -0.045 0.01" 
+            scale="0.25 0.25 0.25" 
             color="#818CF8" 
-            scale="0.9 0.9 0.9" 
             font="roboto">
           </a-text>
+
+          <!-- Small pointer indicator pointing left toward the resistor -->
+          <a-triangle 
+            vertex-a="-0.13 0 0" 
+            vertex-b="-0.16 0 0" 
+            vertex-c="-0.13 0.02 0" 
+            color="#38BDF8" 
+            material="opacity: 0.85;">
+          </a-triangle>
+
         </a-entity>
 
       </a-entity>
 
     </a-entity>
-  </a-scene>
-
-  <script src="./app.js"></script>
-</body>
-</html>
