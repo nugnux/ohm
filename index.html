@@ -1,4 +1,40 @@
-<!-- Target Anchor -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Circuit Overlay</title>
+  
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <!-- MindAR -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+  <!-- Look-At (keeps overlay facing camera) -->
+  <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
+</head>
+<body>
+
+  <a-scene 
+    mindar-image="imageTargetSrc: ./targets.mind;" 
+    color-space="sRGB" 
+    renderer="colorManagement: true, physicallyCorrectLights" 
+    vr-mode-ui="enabled: false" 
+    device-orientation-permission-ui="enabled: false">
+
+    <!-- Preload Assets -->
+    <a-assets>
+      <img id="boardOverlay" src="./image_0.png">
+    </a-assets>
+
+    <!-- Camera -->
+    <a-camera id="mainCamera" position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- Target Anchor (triggers when the camera sees your marker) -->
+   <!-- Target Anchor -->
     <a-entity mindar-image-target="targetIndex: 0">
       
       <!-- Main Container: Positioned slightly above the marker, facing camera -->
@@ -92,3 +128,8 @@
       </a-entity>
 
     </a-entity>
+  </a-scene>
+
+  <script src="./app.js"></script>
+</body>
+</html>
