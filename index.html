@@ -1,113 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebAR Engineering Overlay</title>
-    
-    <!-- Core A-Frame -->
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    
-    <!-- MindAR for A-Frame -->
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-    
-    <!-- Look-At Component for facing the camera -->
-    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Circuit Overlay</title>
+  
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <!-- MindAR -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+  <!-- Look-At (keeps overlay facing camera) -->
+  <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
 
-    <style>
-        body { margin: 0; overflow: hidden; }
-    </style>
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
 </head>
 <body>
 
-    <!--
-      Scene Configuration:
-      - color-space/renderer: set for realistic 3D
-      - ui: disabled for clean view
-      - imageTargetSrc: links to your compiled marker
-    -->
-    <a-scene 
-        mindar-image="imageTargetSrc: ./targets.mind;" 
-        color-space="sRGB" 
-        renderer="colorManagement: true, physicallyCorrectLights" 
-        vr-mode-ui="enabled: false" 
-        device-orientation-permission-ui="enabled: false">
+  <a-scene 
+    mindar-image="imageTargetSrc: ./targets.mind;" 
+    color-space="sRGB" 
+    renderer="colorManagement: true, physicallyCorrectLights" 
+    vr-mode-ui="enabled: false" 
+    device-orientation-permission-ui="enabled: false">
 
-        <!-- Preload any assets if needed (icons, specific fonts) -->
-        <a-assets></a-assets>
+    <!-- Preload Assets -->
+    <a-assets>
+      <img id="boardOverlay" src="./image_0.png">
+    </a-assets>
 
-        <!-- The Camera -->
-        <a-camera id="mainCamera" position="0 0 0" look-controls="enabled: false"></a-camera>
+    <!-- Camera -->
+    <a-camera id="mainCamera" position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <!--
-          Target Anchor (targetIndex: 0 matches image_0.png)
-          All children are positioned relative to this image.
-        -->
-        <a-entity id="arAnchor" mindar-image-target="targetIndex: 0">
-            
-            <!--
-              [THE OVERLAY]
-              A semi-transparent, billboarded container anchored above the component.
-              This whole structure always faces the camera (#mainCamera).
-              - Position x:0, y:0.6 (height above marker), z:0.0
-            -->
-            <a-entity id="engineeringOverlay" position="0 0.6 0.0" look-at="#mainCamera">
+    <!-- Target Anchor (triggers when the camera sees your marker) -->
+    <a-entity mindar-image-target="targetIndex: 0">
+      
+      <!-- Container: Positioned slightly above the marker, billboarding to camera -->
+      <a-entity position="0 0 0.1" look-at="#mainCamera">
 
-                <!-- 1. Background Panel: Adds contrast to the text.
-                   Color: Darker blue-grey, semi-transparent (opacity 0.85) -->
-                <a-plane 
-                    id="overlayBackground"
-                    width="1.2" 
-                    height="0.6" 
-                    color="#1E293B" 
-                    material="opacity: 0.85; transparent: true">
-                </a-plane>
+        <!-- 1. Transparent Board Image Overlay -->
+        <a-plane 
+          src="#boardOverlay" 
+          width="1.0" 
+          height="1.0" 
+          material="opacity: 0.55; transparent: true; alphaTest: 0.01;">
+        </a-plane>
 
-                <!-- 2. Voltage Value Panel -->
-                <a-entity position="0 0.15 0.01">
-                    <a-text 
-                        id="voltValue"
-                        value="3.30 V" 
-                        color="#38BDF8" 
-                        scale="0.8 0.8 0.8" 
-                        align="center" 
-                        font="roboto">
-                    </a-text>
-                    <a-text 
-                        value="LIVE" 
-                        color="#38BDF8" 
-                        scale="0.3 0.3 0.3" 
-                        align="center" 
-                        position="0.35 0.05 0">
-                    </a-text>
-                </a-entity>
+        <!-- 2. Dark Tint Card Behind Text (for readability over busy backgrounds) -->
+        <a-plane 
+          position="0 0.02 0.01" 
+          width="0.75" 
+          height="0.65" 
+          color="#0F172A" 
+          material="opacity: 0.7; transparent: true">
+        </a-plane>
 
-                <!-- 3. Current Value Panel -->
-                <a-entity position="0 -0.15 0.01">
-                    <a-text 
-                        id="currValue"
-                        value="10.5 mA" 
-                        color="#818CF8" 
-                        scale="0.8 0.8 0.8" 
-                        align="center" 
-                        font="roboto">
-                    </a-text>
-                    <a-text 
-                        value="CALC" 
-                        color="#818CF8" 
-                        scale="0.3 0.3 0.3" 
-                        align="center" 
-                        position="0.35 -0.05 0">
-                    </a-text>
-                </a-entity>
-
-            </a-entity>
-
+        <!-- 3. VOLTAGE SECTION -->
+        <a-entity position="0 0.18 0.02">
+          <a-text 
+            value="VOLTAGE" 
+            align="center" 
+            color="#94A3B8" 
+            scale="0.35 0.35 0.35" 
+            font="roboto">
+          </a-text>
+          <a-text 
+            id="voltageDisplay" 
+            value="3.32 V" 
+            align="center" 
+            position="0 -0.09 0" 
+            color="#38BDF8" 
+            scale="0.9 0.9 0.9" 
+            font="roboto">
+          </a-text>
         </a-entity>
-    </a-scene>
 
-    <!-- Include the control script (see Step 3) -->
-    <script src="./app.js"></script>
+        <!-- 4. CURRENT SECTION -->
+        <a-entity position="0 -0.12 0.02">
+          <a-text 
+            value="CURRENT" 
+            align="center" 
+            color="#94A3B8" 
+            scale="0.35 0.35 0.35" 
+            font="roboto">
+          </a-text>
+          <a-text 
+            id="currentDisplay" 
+            value="10.6 mA" 
+            align="center" 
+            position="0 -0.09 0" 
+            color="#818CF8" 
+            scale="0.9 0.9 0.9" 
+            font="roboto">
+          </a-text>
+        </a-entity>
 
+      </a-entity>
+
+    </a-entity>
+  </a-scene>
+
+  <script src="./app.js"></script>
 </body>
 </html>
